@@ -27,11 +27,11 @@ install_prereqs(){
     echo "--- Prerequisites installation finished ---"
 }
 
-populate_bq_data(){
-    echo "--- Changing to root directory ($ROOT_DIR) to populate BigQuery data ---"
-    # Execute the python script from the root directory within a subshell
-    (cd "$ROOT_DIR" && python deployment/bq_populate_data.py)
-    echo "--- BigQuery population finished ---"
+populate_bq_data() {
+  echo "--- Changing to root directory (${ROOT_DIR}) to populate BigQuery data ---"
+  cd "${ROOT_DIR}"
+  # Use poetry run to execute the script within the project environment
+  poetry run python deployment/bq_populate_data.py
 }
 
 main(){

@@ -85,16 +85,18 @@ def populate_bigquery_table():
         )
     )
 
-    errors = client.insert_rows_json(table=table, json_rows=data_to_insert)
-
-    if errors == []:
-        print(
-            f"Successfully inserted {len(data_to_insert)} rows into {PROJECT}.{DATASET_ID}.{TABLE_ID}"
-        )
-    else:
-        print("Errors occurred while inserting rows:")
-        for error in errors:
-            print(error)
+    # Use batch load job instead of streaming insert to work around free-tier restrictions
+    job_config = bigquery.LoadJobConfig(
+        schema=schema,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+    )
+    load_job = client.load_table_from_json(
+        data_to_insert,
+        f"{PROJECT}.{DATASET_ID}.{TABLE_ID}",
+        job_config=job_config,
+    )  # Make an API request.
+    load_job.result()  # Waits for the job to complete.
+    print(f"Successfully loaded {len(data_to_insert)} rows into {PROJECT}.{DATASET_ID}.{TABLE_ID}")
 
 
 if __name__ == "__main__":
